@@ -21,45 +21,62 @@
     <script>
         const BASE_URL = "https://lotoapp2.vercel.app";
         let equipment = [];
+        let currentPhoto = null;
 
         function switchTab(n) {
             const content = document.getElementById('content');
             if (n === 0) content.innerHTML = '<h2 class="text-2xl">Dashboard</h2><p>Welcome to LOTO Pro</p>';
             if (n === 1) {
                 content.innerHTML = `
-                    <button onclick="addEquipment()" class="bg-teal-700 text-white px-6 py-3 rounded mb-6">+ Add / Change Equipment</button>
+                    <button onclick="showAddModal()" class="bg-teal-700 text-white px-6 py-3 rounded mb-6">+ Add Equipment</button>
                     <div id="list"></div>
                 `;
                 renderList();
             }
-            if (n === 2) content.innerHTML = `<input id="idinput" placeholder="Equipment ID" class="border p-3 w-full rounded mb-4"><button onclick="loadChecklist()" class="bg-emerald-600 text-white px-8 py-3 rounded">Load Checklist</button>`;
+            if (n === 2) {
+                content.innerHTML = `
+                    <input id="idinput" placeholder="Equipment ID" class="border p-3 w-full rounded mb-4">
+                    <button onclick="loadChecklist()" class="bg-emerald-600 text-white px-8 py-3 rounded">Load Checklist</button>
+                `;
+            }
         }
 
-      function addEquipment() {
-    const id = prompt("Equipment ID", "CB-PANEL-01");
-    const name = prompt("Name", "Main Panel");
-    const photoInput = document.createElement('input');
-    photoInput.type = 'file';
-    photoInput.accept = 'image/*';
-    photoInput.onchange = e => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = ev => {
-                equipment.push({
-                    id, 
-                    name, 
-                    photo: ev.target.result, 
-                    ppe: "Level 4 Arc Flash Suit", 
-                    steps: ["Notify affected employees", "Isolate energy", "Live-Dead-Live test", "Don PPE", "Perform work", "Re-energize"]
-                });
-                renderList();
-            };
-            reader.readAsDataURL(file);
+        function showAddModal() {
+            const modal = document.createElement('div');
+            modal.style = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100';
+            modal.innerHTML = `
+                <div style="background:white;padding:20px;border-radius:12px;width:90%;max-width:400px">
+                    <h3>Add Equipment</h3>
+                    <input id="mid" placeholder="ID" style="width:100%;padding:10px;margin:10px 0;border:1px solid #ccc">
+                    <input id="mname" placeholder="Name" style="width:100%;padding:10px;margin:10px 0;border:1px solid #ccc">
+                    <input type="file" id="mphoto" accept="image/*" onchange="previewFile(this)">
+                    <div id="mprev" style="margin:10px 0"></div>
+                    <button onclick="saveNewEquipment()" style="background:#0f766e;color:white;padding:10px 20px;border:none;border-radius:8px">Save</button>
+                    <button onclick="this.closest('.fixed').remove()" style="margin-left:10px">Cancel</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
         }
-    };
-    photoInput.click();
-}
+
+        function previewFile(input) {
+            if (input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    currentPhoto = e.target.result;
+                    document.getElementById('mprev').innerHTML = `<img src="${currentPhoto}" style="max-height:150px">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function saveNewEquipment() {
+            const id = document.getElementById('mid').value;
+            const name = document.getElementById('mname').value;
+            if (!id || !name) return alert("ID and Name required");
+            equipment.push({id, name, photo: currentPhoto || "https://picsum.photos/id/1015/800/600"});
+            document.querySelector('.fixed').remove();
+            renderList();
+        }
 
         function renderList() {
             const list = document.getElementById('list');
@@ -68,7 +85,7 @@
                 <div class="border p-4 rounded mb-4">
                     <img src="${eq.photo}" class="w-full h-48 object-cover rounded mb-3">
                     <div class="font-bold">${eq.name}</div>
-                    <button onclick="genQR('${eq.id}')" class="text-teal-600">Generate QR</button>
+                    <button onclick="genQR('${eq.id}')" class="text-teal-600 mt-2">Generate QR</button>
                 </div>
             `).join('');
         }
@@ -88,21 +105,21 @@
                 <h2 class="text-2xl">${eq.name} (${id})</h2>
                 <div class="space-y-3 mt-6">
                     <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Notify affected employees</div>
-                    <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Isolate energy sources</div>
+                    <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Isolate energy</div>
                     <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Live-Dead-Live test</div>
-                    <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Don PPE (Level 4)</div>
+                    <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Don PPE</div>
                     <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Perform work</div>
-                    <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Re-energize safely</div>
+                    <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Re-energize</div>
                 </div>
-                <button onclick="completeLOTO()" class="mt-8 bg-emerald-600 text-white px-8 py-4 rounded w-full">Sign & Complete LOTO</button>
+                <button onclick="completeLOTO()" class="mt-8 bg-emerald-600 text-white px-8 py-4 rounded w-full">Sign & Complete</button>
             `;
         }
 
         function completeLOTO() {
-            alert("Digital signature recorded!\nReport sent to EHS, Maintenance, and F&E.");
+            alert("Digital signature recorded!\nReport sent to EHS.");
         }
 
-        function checkUrlParam() {
+        window.onload = () => {
             const id = new URLSearchParams(window.location.search).get('equip');
             if (id) {
                 switchTab(2);
@@ -111,10 +128,6 @@
                     loadChecklist();
                 }, 100);
             }
-        }
-
-        window.onload = () => {
-            checkUrlParam();
         };
     </script>
 </body>
