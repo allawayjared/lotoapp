@@ -13,33 +13,43 @@
         .nav-tab.active { background-color: #0f766e; color: white; }
         .section { display: none; }
         .section.active { display: block; }
-        canvas { border: 2px solid #e5e7eb; border-radius: 12px; background: white; }
-        .modal-body { max-height: 70vh; overflow-y: auto; }
+        canvas { border: 2px solid #e5e7eb; border-radius: 12px; background: white; touch-action: none; }
+        .modal-body { max-height: 65vh; overflow-y: auto; }
     </style>
 </head>
 <body class="bg-slate-50">
-    <!-- Header and nav (same as before) -->
+    <header class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-x-3">
+                <div class="w-10 h-10 bg-teal-700 rounded-xl flex items-center justify-center text-white"><i class="fa-solid fa-lock"></i></div>
+                <h1 class="text-2xl font-semibold heading">LOTO Pro</h1>
+            </div>
+            <input id="currentUser" value="Alex Rivera" class="bg-slate-100 px-4 py-2 rounded-full text-sm w-40">
+        </div>
+    </header>
 
-    <!-- Admin modal with improved responsiveness -->
-    <div id="modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4">
-        <div class="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] flex flex-col">
-            <div class="p-6 border-b">
-                <h3 id="modal-title" class="text-xl font-semibold">Add Equipment</h3>
-            </div>
-            <div class="modal-body p-6 overflow-y-auto flex-1">
-                <!-- All form fields here (ID, Name, Photo upload, PPE, Steps) -->
-                <!-- Same as previous code -->
-            </div>
-            <div class="p-4 border-t flex gap-3 bg-white rounded-b-3xl">
-                <button onclick="closeModal()" class="flex-1 py-3 border rounded-2xl">Cancel</button>
-                <button onclick="saveEquipment()" class="flex-1 py-3 bg-teal-700 text-white rounded-2xl font-medium">Save Equipment</button>
+    <nav class="max-w-7xl mx-auto px-6 pt-6">
+        <div class="flex gap-x-1 bg-white p-1 rounded-2xl w-fit border">
+            <button onclick="switchTab(0)" class="nav-tab active px-6 py-3 rounded-xl text-sm font-medium">Dashboard</button>
+            <button onclick="switchTab(1)" class="nav-tab px-6 py-3 rounded-xl text-sm font-medium">Admin</button>
+            <button onclick="switchTab(2)" class="nav-tab px-6 py-3 rounded-xl text-sm font-medium">Perform LOTO</button>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <!-- DASHBOARD -->
+        <div id="section-0" class="section active">
+            <h2 class="text-3xl font-semibold heading mb-6">Dashboard</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white p-5 rounded-3xl border"><p class="text-sm text-slate-500">Total LOTOs</p><p id="stat-total" class="text-4xl font-bold text-teal-700">0</p></div>
+                <div class="bg-white p-5 rounded-3xl border"><p class="text-sm text-slate-500">Equipment</p><p id="stat-equip" class="text-4xl font-bold text-teal-700">0</p></div>
             </div>
         </div>
-    </div>
 
-    <script>
-        const BASE_URL = "https://lotoapp2.vercel.app";
-        // ... rest of your JavaScript (loadData, renderAdmin, loadEquipment, etc.)
-    </script>
-</body>
-</html>
+        <!-- ADMIN -->
+        <div id="section-1" class="section">
+            <div class="flex justify-between mb-6">
+                <h2 class="text-3xl font-semibold heading">Admin</h2>
+                <button onclick="showAddModal()" class="bg-teal-700 text-white px-5 py-2.5 rounded-2xl text-sm font-medium flex items-center gap-x-2">
+                    <i class="fa-solid fa-plus"></i> Add Equipment
+               
