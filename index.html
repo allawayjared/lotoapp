@@ -19,16 +19,57 @@
         const BASE_URL = "https://lotoapp2.vercel.app";
 
         function switchTab(n) {
-            const content = document.getElementById('content');
-            if (n === 0) content.innerHTML = '<h2 class="text-2xl">Dashboard</h2><p>Welcome!</p>';
-            if (n === 1) {
-                content.innerHTML = `<button onclick="addEquipment()" class="bg-teal-700 text-white px-6 py-3 rounded">+ Add Equipment</button><div id="list" class="mt-6"></div>`;
-                renderList();
-            }
+    const content = document.getElementById('content');
+    if (n === 0) content.innerHTML = '<h2 class="text-2xl">Dashboard</h2><p>Welcome!</p>';
+    if (n === 1) {
+        content.innerHTML = `
+            <button onclick="addEquipment()" class="bg-teal-700 text-white px-6 py-3 rounded">+ Add Equipment</button>
+            <div id="list" class="mt-6"></div>
+        `;
+        renderList();
+    }
+    if (n === 2) {
+        content.innerHTML = `
+            <input id="idinput" placeholder="Equipment ID" class="border p-3 w-full rounded mb-4">
+            <button onclick="loadChecklist()" class="bg-emerald-600 text-white px-8 py-3 rounded">Load Checklist</button>
+        `;
+    }
+}
+
+function addEquipment() {
+    const id = prompt("Equipment ID", "CB-PANEL-01");
+    const name = prompt("Equipment Name", "Main Panel");
+    const photo = prompt("Photo URL (public link)", "https://picsum.photos/id/1015/800/600");
+    equipment.push({id, name, photo: photo || "https://picsum.photos/id/1015/800/600", ppe: "Level 4 Arc Flash", steps: ["Notify", "Isolate", "Verify", "PPE", "Work", "Re-energize"]});
+    renderList();
+}
+
+function renderList() {
+    const list = document.getElementById('list');
+    if (!list) return;
+    list.innerHTML = equipment.map(eq => `
+        <div class="border p-4 rounded mb-4">
+            <img src="${eq.photo}" class="w-full h-48 object-cover rounded mb-3">
+            <div class="font-bold">${eq.name}</div>
+            <div class="text-sm text-slate-500">${eq.id}</div>
+            <button onclick="genQR('${eq.id}')" class="text-teal-600 mt-2">Generate QR</button>
+        </div>
+    `).join('');
+}
             if (n === 2) {
-                content.innerHTML = `
-                    <input id="idinput" placeholder="Equipment ID" class="border p-3 w-full rounded mb-4">
-                    <button onclick="loadChecklist()" class="bg-emerald-600 text-white px-8 py-3 rounded">Load Checklist</button>
+               content.innerHTML = `
+    <img src="https://picsum.photos/id/1015/800/600" class="w-full rounded mb-4" id="equip-photo">
+    <h2 class="text-2xl">Checklist for ${id}</h2>
+    <div class="space-y-3 mt-6">
+        <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1 w-5 h-5"> Notify affected employees</div>
+        <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1 w-5 h-5"> Isolate energy sources</div>
+        <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1 w-5 h-5"> Live-Dead-Live test with tester</div>
+        <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1 w-5 h-5"> Don PPE (Level 4)</div>
+        <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1 w-5 h-5"> Perform work</div>
+        <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1 w-5 h-5"> Re-energize safely</div>
+    </div>
+    <button onclick="completeLOTO()" class="mt-8 bg-emerald-600 text-white px-8 py-4 rounded w-full">Sign & Complete</button>
+`;
                 `;
             }
         }
