@@ -1,137 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOTO Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        body { font-family: system-ui, sans-serif; }
-        .nav-tab.active { background-color: #0f766e; color: white; }
-        .section { display: none; }
-        .section.active { display: block; }
-    </style>
 </head>
-<body class="bg-slate-50">
-    <header class="bg-white border-b p-4">
-        <h1 class="text-3xl font-bold">LOTO Pro</h1>
-    </header>
-
-    <nav class="p-4 border-b flex gap-2 bg-white">
-        <button onclick="switchTab(0)" class="nav-tab active px-6 py-3 rounded-xl">Dashboard</button>
-        <button onclick="switchTab(1)" class="nav-tab px-6 py-3 rounded-xl">Admin</button>
-        <button onclick="switchTab(2)" class="nav-tab px-6 py-3 rounded-xl">Perform LOTO</button>
-    </nav>
-
-    <div class="p-6 max-w-4xl mx-auto">
-        <div id="section-0" class="section active">
-            <h2 class="text-2xl font-bold">Dashboard</h2>
-            <p class="mt-4">Welcome to LOTO Pro</p>
-        </div>
-
-        <div id="section-1" class="section">
-            <button onclick="showAddModal()" class="bg-teal-700 text-white px-6 py-3 rounded-xl">+ Add Equipment</button>
-            <div id="admin-list" class="mt-6"></div>
-        </div>
-
-        <div id="section-2" class="section">
-            <div id="perform-content" class="bg-white rounded-3xl p-6"></div>
-        </div>
+<body class="p-8 bg-slate-50">
+    <h1 class="text-4xl font-bold mb-8">LOTO Pro</h1>
+    
+    <div class="flex gap-4 mb-8">
+        <button onclick="switchTab(0)" class="px-6 py-3 bg-teal-700 text-white rounded">Dashboard</button>
+        <button onclick="switchTab(1)" class="px-6 py-3 bg-teal-700 text-white rounded">Admin</button>
+        <button onclick="switchTab(2)" class="px-6 py-3 bg-teal-700 text-white rounded">Perform LOTO</button>
     </div>
 
-    <!-- Modal -->
-    <div id="modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl w-full max-w-md">
-            <div class="p-6 border-b">
-                <h3 id="modal-title" class="font-bold">Add Equipment</h3>
-            </div>
-            <div class="p-6 space-y-4">
-                <input id="m-id" class="w-full border p-3 rounded" placeholder="ID e.g. CB-PANEL-01">
-                <input id="m-name" class="w-full border p-3 rounded" placeholder="Equipment Name">
-                <input type="file" id="m-photo" accept="image/*" onchange="previewPhoto(this)">
-                <div id="photo-preview" class="hidden mt-2"><img id="preview-img" class="w-full rounded"></div>
-                <textarea id="m-ppe" class="w-full border p-3 rounded" rows="2" placeholder="PPE requirements"></textarea>
-                <textarea id="m-steps" class="w-full border p-3 rounded" rows="5" placeholder="Steps - one per line"></textarea>
-            </div>
-            <div class="p-4 border-t flex gap-3">
-                <button onclick="closeModal()" class="flex-1 py-3 border rounded-2xl">Cancel</button>
-                <button onclick="saveEquipment()" class="flex-1 py-3 bg-teal-700 text-white rounded-2xl">Save</button>
-            </div>
-        </div>
-    </div>
+    <div id="content">Click a tab</div>
 
     <script>
         const BASE_URL = "https://lotoapp2.vercel.app";
-        let equipment = [];
 
         function switchTab(n) {
-            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('section-' + n).classList.remove('hidden');
-            if (n === 1) renderAdmin();
+            const content = document.getElementById('content');
+            if (n === 0) {
+                content.innerHTML = '<h2 class="text-2xl">Dashboard</h2><p>Welcome to LOTO Pro</p>';
+            }
+            if (n === 1) {
+                content.innerHTML = `<button onclick="addEquipment()" class="bg-teal-700 text-white px-6 py-3 rounded">+ Add Equipment</button><div id="list" class="mt-6"></div>`;
+                renderList();
+            }
+            if (n === 2) {
+                content.innerHTML = `
+                    <input id="idinput" placeholder="Equipment ID (or scan QR)" class="border p-3 w-full rounded mb-4">
+                    <button onclick="loadChecklist()" class="bg-emerald-600 text-white px-8 py-3 rounded">Load Checklist</button>
+                `;
+            }
         }
 
-        function loadData() {
-            equipment = [{
-                id: "CB-PANEL-01",
-                name: "Main 480V Distribution Panel",
-                photo: "https://picsum.photos/id/1015/800/600",
-                ppe: "Level 4 Arc Flash Suit",
-                steps: ["Notify affected employees", "Isolate energy sources", "Verify isolation (Live-Dead-Live)", "Don PPE", "Perform work", "Re-energize safely"]
-            }];
+        function addEquipment() {
+            alert("Add equipment form would open here (photo, steps, PPE).");
+            renderList();
         }
 
-        function renderAdmin() {
-            const container = document.getElementById('admin-list');
-            container.innerHTML = equipment.map(eq => `
-                <div class="border p-4 rounded mb-4">
-                    <img src="${eq.photo}" class="w-full h-48 object-cover rounded mb-3">
-                    <div class="font-bold">${eq.name}</div>
-                    <button onclick="showQR('${eq.id}')" class="text-teal-600 mt-2">Generate QR Code</button>
+        function renderList() {
+            document.getElementById('list').innerHTML = `
+                <div class="border p-4 rounded">
+                    Main Panel (CB-PANEL-01)
+                    <button onclick="genQR('CB-PANEL-01')" class="ml-4 text-teal-600">QR</button>
                 </div>
-            `).join('');
+            `;
         }
 
-        function showAddModal() {
-            document.getElementById('modal').classList.remove('hidden');
+        function genQR(id) {
+            alert("QR URL: " + BASE_URL + "/?equip=" + id + "\n\nScan to go straight to checklist.");
         }
 
-        function closeModal() {
-            document.getElementById('modal').classList.add('hidden');
+        function loadChecklist() {
+            const id = document.getElementById('idinput').value || "CB-PANEL-01";
+            document.getElementById('content').innerHTML = `
+                <img src="https://picsum.photos/id/1015/800/600" class="w-full rounded mb-4">
+                <h2 class="text-2xl">Checklist for ${id}</h2>
+                <ul class="list-disc pl-6 mt-4 space-y-2">
+                    <li>Notify affected employees</li>
+                    <li>Isolate energy sources</li>
+                    <li>Live-Dead-Live test</li>
+                    <li>Don PPE (Level 4)</li>
+                    <li>Perform work</li>
+                    <li>Re-energize safely</li>
+                </ul>
+                <button onclick="completeLOTO()" class="mt-8 bg-emerald-600 text-white px-8 py-4 rounded w-full">Sign & Complete</button>
+            `;
         }
 
-        function previewPhoto(input) {
-            if (input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    document.getElementById('preview-img').src = e.target.result;
-                    document.getElementById('photo-preview').classList.remove('hidden');
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
+        function completeLOTO() {
+            alert("Digital signature captured!\nReport sent to EHS and Maintenance.");
         }
-
-        function saveEquipment() {
-            alert("Equipment saved successfully!");
-            closeModal();
-            renderAdmin();
-        }
-
-        function showQR(id) {
-            const url = `${BASE_URL}/?equip=${id}`;
-            alert("QR Code URL: " + url + "\n\nScan this to go straight to the checklist.");
-        }
-
-        window.onload = () => {
-            loadData();
-            renderAdmin();
-            const id = new URLSearchParams(window.location.search).get('equip');
-            if (id) {
-                switchTab(2);
-                document.getElementById('perform-content').innerHTML = `<h2 class="text-2xl">Checklist for ${id}</h2><p>Photo and full steps would appear here.</p>`;
-            }
-        };
     </script>
 </body>
 </html>
