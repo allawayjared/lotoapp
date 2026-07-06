@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOTO Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
-<body class="p-8 bg-slate-50">
+<body class="bg-slate-50 p-6">
     <h1 class="text-4xl font-bold mb-8">LOTO Pro</h1>
     
     <div class="flex gap-4 mb-8">
@@ -17,139 +20,84 @@
 
     <script>
         const BASE_URL = "https://lotoapp2.vercel.app";
+        let equipment = [];
 
         function switchTab(n) {
-    const content = document.getElementById('content');
-    if (n === 0) content.innerHTML = '<h2 class="text-2xl">Dashboard</h2><p>Welcome!</p>';
-    if (n === 1) {
-        content.innerHTML = `
-            <button onclick="addEquipment()" class="bg-teal-700 text-white px-6 py-3 rounded">+ Add Equipment</button>
-            <div id="list" class="mt-6"></div>
-        `;
-        renderList();
-    }
-    if (n === 2) {
-        content.innerHTML = `
-            <input id="idinput" placeholder="Equipment ID" class="border p-3 w-full rounded mb-4">
-            <button onclick="loadChecklist()" class="bg-emerald-600 text-white px-8 py-3 rounded">Load Checklist</button>
-        `;
-    }
-}
-
-function addEquipment() {
-    const id = prompt("Equipment ID", "CB-PANEL-01");
-    const name = prompt("Equipment Name", "Main Panel");
-    const photo = prompt("Photo URL (public link)", "https://picsum.photos/id/1015/800/600");
-    equipment.push({id, name, photo: photo || "https://picsum.photos/id/1015/800/600", ppe: "Level 4 Arc Flash", steps: ["Notify", "Isolate", "Verify", "PPE", "Work", "Re-energize"]});
-    renderList();
-}
-
-function renderList() {
-    const list = document.getElementById('list');
-    if (!list) return;
-    list.innerHTML = equipment.map(eq => `
-        <div class="border p-4 rounded mb-4">
-            <img src="${eq.photo}" class="w-full h-48 object-cover rounded mb-3">
-            <div class="font-bold">${eq.name}</div>
-            <div class="text-sm text-slate-500">${eq.id}</div>
-            <button onclick="genQR('${eq.id}')" class="text-teal-600 mt-2">Generate QR</button>
-        </div>
-    `).join('');
-}
-            if (n === 2) {
-               content.innerHTML = `
-    <img src="https://picsum.photos/id/1015/800/600" class="w-full rounded mb-4" id="equip-photo">
-    <h2 class="text-2xl">Checklist for ${id}</h2>
-    <div class="space-y-3 mt-6">
-        <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1 w-5 h-5"> Notify affected employees</div>
-        <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1 w-5 h-5"> Isolate energy sources</div>
-        <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1 w-5 h-5"> Live-Dead-Live test with tester</div>
-        <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1 w-5 h-5"> Don PPE (Level 4)</div>
-        <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1 w-5 h-5"> Perform work</div>
-        <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1 w-5 h-5"> Re-energize safely</div>
-    </div>
-    <button onclick="completeLOTO()" class="mt-8 bg-emerald-600 text-white px-8 py-4 rounded w-full">Sign & Complete</button>
-`;
+            const content = document.getElementById('content');
+            if (n === 0) content.innerHTML = '<h2 class="text-2xl">Dashboard</h2><p>Welcome to LOTO Pro</p>';
+            if (n === 1) {
+                content.innerHTML = `
+                    <button onclick="addEquipment()" class="bg-teal-700 text-white px-6 py-3 rounded mb-6">+ Add / Change Equipment</button>
+                    <div id="list"></div>
                 `;
+                renderList();
             }
+            if (n === 2) content.innerHTML = `<input id="idinput" placeholder="Equipment ID" class="border p-3 w-full rounded mb-4"><button onclick="loadChecklist()" class="bg-emerald-600 text-white px-8 py-3 rounded">Load Checklist</button>`;
         }
 
         function addEquipment() {
-            alert("Add form would open here.");
+            const id = prompt("Equipment ID", "CB-PANEL-01");
+            const name = prompt("Name", "Main Panel");
+            const photo = prompt("Photo URL (public link)", "https://picsum.photos/id/1015/800/600");
+            equipment.push({id, name, photo: photo || "https://picsum.photos/id/1015/800/600"});
             renderList();
         }
 
         function renderList() {
-            document.getElementById('list').innerHTML = `
-                <div class="border p-4 rounded">
-                    Main Panel (CB-PANEL-01)
-                    <button onclick="genQR('CB-PANEL-01')" class="ml-4 text-teal-600">Generate QR</button>
+            const list = document.getElementById('list');
+            if (!list) return;
+            list.innerHTML = equipment.map(eq => `
+                <div class="border p-4 rounded mb-4">
+                    <img src="${eq.photo}" class="w-full h-48 object-cover rounded mb-3">
+                    <div class="font-bold">${eq.name}</div>
+                    <button onclick="genQR('${eq.id}')" class="text-teal-600">Generate QR</button>
                 </div>
-            `;
+            `).join('');
         }
 
         function genQR(id) {
-    const url = `${BASE_URL}/?equip=${id}`;
-    const win = window.open("", "_blank");
-    win.document.write(`
-        <div style="padding:40px;text-align:center;font-family:sans-serif">
-            <h2>QR Code for ${id}</h2>
-            <div id="qr" style="margin:30px auto"></div>
-            <p>Scan this with your phone</p>
-        </div>
-    `);
-    new QRCode(win.document.getElementById("qr"), {
-        text: url,
-        width: 256,
-        height: 256
-    });
-}
+            const url = `${BASE_URL}/?equip=${id}`;
+            const win = window.open("", "_blank");
+            win.document.write(`<div style="padding:40px;text-align:center"><h2>QR for ${id}</h2><div id="qr"></div></div>`);
+            new QRCode(win.document.getElementById("qr"), {text: url, width: 256, height: 256});
+        }
 
         function loadChecklist() {
             const id = document.getElementById('idinput').value || "CB-PANEL-01";
+            const eq = equipment.find(e => e.id === id) || {photo: "https://picsum.photos/id/1015/800/600", name: "Equipment"};
             document.getElementById('content').innerHTML = `
-                <img src="https://picsum.photos/id/1015/800/600" class="w-full rounded mb-4">
-                <h2 class="text-2xl">Checklist for ${id}</h2>
-                <ul class="list-disc pl-6 mt-4 space-y-2">
-                    <li>Notify affected employees</li>
-                    <li>Isolate energy</li>
-                    <li>Live-Dead-Live test</li>
-                    <li>Don PPE</li>
-                    <li>Perform work</li>
-                    <li>Re-energize</li>
-                </ul>
-                <button onclick="completeLOTO()" class="mt-8 bg-emerald-600 text-white px-8 py-4 rounded w-full">Sign & Complete</button>
+                <img src="${eq.photo}" class="w-full rounded mb-6">
+                <h2 class="text-2xl">${eq.name} (${id})</h2>
+                <div class="space-y-3 mt-6">
+                    <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Notify affected employees</div>
+                    <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Isolate energy sources</div>
+                    <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Live-Dead-Live test</div>
+                    <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Don PPE (Level 4)</div>
+                    <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Perform work</div>
+                    <div class="flex gap-3 p-4 border rounded-2xl"><input type="checkbox" class="mt-1"> Re-energize safely</div>
+                </div>
+                <button onclick="completeLOTO()" class="mt-8 bg-emerald-600 text-white px-8 py-4 rounded w-full">Sign & Complete LOTO</button>
             `;
         }
 
         function completeLOTO() {
-            alert("Signed! Report sent to EHS.");
+            alert("Digital signature recorded!\nReport sent to EHS, Maintenance, and F&E.");
         }
-                function checkUrlParam() {
-            const params = new URLSearchParams(window.location.search);
-            const id = params.get('equip');
+
+        function checkUrlParam() {
+            const id = new URLSearchParams(window.location.search).get('equip');
             if (id) {
                 switchTab(2);
-                // Auto-load the checklist
-                const content = document.getElementById('content');
-                content.innerHTML = `
-                    <img src="https://picsum.photos/id/1015/800/600" class="w-full rounded mb-4">
-                    <h2 class="text-2xl">Checklist for ${id}</h2>
-                    <ul class="list-disc pl-6 mt-4 space-y-2">
-                        <li>Notify affected employees</li>
-                        <li>Isolate energy</li>
-                        <li>Live-Dead-Live test</li>
-                        <li>Don PPE</li>
-                        <li>Perform work</li>
-                        <li>Re-energize</li>
-                    </ul>
-                    <button onclick="completeLOTO()" class="mt-8 bg-emerald-600 text-white px-8 py-4 rounded w-full">Sign & Complete</button>
-                `;
+                setTimeout(() => {
+                    document.getElementById('idinput').value = id;
+                    loadChecklist();
+                }, 100);
             }
         }
 
-        // Make sure onload calls it
-        window.onload = checkUrlParam;
+        window.onload = () => {
+            checkUrlParam();
+        };
     </script>
 </body>
 </html>
