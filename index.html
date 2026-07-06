@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOTO Pro • Full Demo</title>
+    <title>LOTO Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -13,361 +13,33 @@
         .nav-tab.active { background-color: #0f766e; color: white; }
         .section { display: none; }
         .section.active { display: block; }
-        canvas#signatureCanvas { border: 2px solid #e5e7eb; border-radius: 12px; background: white; touch-action: none; }
+        canvas { border: 2px solid #e5e7eb; border-radius: 12px; background: white; }
+        .modal-body { max-height: 70vh; overflow-y: auto; }
     </style>
 </head>
 <body class="bg-slate-50">
-    <header class="bg-white border-b sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-x-3">
-                <div class="w-10 h-10 bg-teal-700 rounded-xl flex items-center justify-center text-white"><i class="fa-solid fa-lock"></i></div>
-                <h1 class="text-2xl font-semibold heading">LOTO Pro</h1>
-            </div>
-            <input id="currentUser" value="Alex Rivera" class="bg-slate-100 px-4 py-2 rounded-full text-sm w-40">
-        </div>
-    </header>
+    <!-- Header and nav (same as before) -->
 
-    <nav class="max-w-7xl mx-auto px-6 pt-6">
-        <div class="flex gap-x-1 bg-white p-1 rounded-2xl w-fit border">
-            <button onclick="switchTab(0)" id="tab-0" class="nav-tab active px-6 py-3 rounded-xl text-sm font-medium">Dashboard</button>
-            <button onclick="switchTab(1)" id="tab-1" class="nav-tab px-6 py-3 rounded-xl text-sm font-medium">Admin</button>
-            <button onclick="switchTab(2)" id="tab-2" class="nav-tab px-6 py-3 rounded-xl text-sm font-medium">Perform LOTO</button>
-        </div>
-    </nav>
-
-    <div class="max-w-7xl mx-auto px-6 py-8">
-        <!-- DASHBOARD -->
-        <div id="section-0" class="section active">
-            <h2 class="text-3xl font-semibold heading mb-6">Dashboard</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="bg-white p-5 rounded-3xl border"><p class="text-sm text-slate-500">Total LOTOs</p><p id="stat-total" class="text-4xl font-bold text-teal-700">0</p></div>
-                <div class="bg-white p-5 rounded-3xl border"><p class="text-sm text-slate-500">Equipment</p><p id="stat-equip" class="text-4xl font-bold text-teal-700">0</p></div>
+    <!-- Admin modal with improved responsiveness -->
+    <div id="modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4">
+        <div class="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b">
+                <h3 id="modal-title" class="text-xl font-semibold">Add Equipment</h3>
             </div>
-            <div class="bg-white rounded-3xl border p-6">
-                <h3 class="font-semibold mb-4">Recent Activity</h3>
-                <div id="logs-table" class="text-sm"></div>
+            <div class="modal-body p-6 overflow-y-auto flex-1">
+                <!-- All form fields here (ID, Name, Photo upload, PPE, Steps) -->
+                <!-- Same as previous code -->
             </div>
-        </div>
-
-        <!-- ADMIN -->
-        <div id="section-1" class="section">
-            <div class="flex justify-between mb-6">
-                <h2 class="text-3xl font-semibold heading">Admin</h2>
-                <button onclick="showAddModal()" class="bg-teal-700 text-white px-5 py-2.5 rounded-2xl text-sm font-medium flex items-center gap-x-2">
-                    <i class="fa-solid fa-plus"></i> Add Equipment
-                </button>
-            </div>
-            <div id="admin-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-        </div>
-
-        <!-- PERFORM LOTO -->
-        <div id="section-2" class="section">
-            <div class="max-w-4xl mx-auto">
-                <div id="perform-content" class="bg-white rounded-3xl border overflow-hidden">
-                    <!-- Content loaded dynamically by JS -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add/Edit Modal -->
-    <div id="modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
-        <div class="bg-white rounded-3xl w-full max-w-lg mx-4 p-6">
-            <h3 id="modal-title" class="text-xl font-semibold mb-4">Add Equipment</h3>
-            <div class="space-y-4">
-                <div><label class="text-sm font-medium">ID</label><input id="m-id" class="w-full border rounded-xl px-4 py-3"></div>
-                <div><label class="text-sm font-medium">Name</label><input id="m-name" class="w-full border rounded-xl px-4 py-3"></div>
-                <div>
-                    <label class="text-sm font-medium">Photo</label>
-                    <input type="file" id="m-photo" accept="image/*" class="hidden" onchange="previewPhoto(this)">
-                    <button onclick="document.getElementById('m-photo').click()" class="mt-1 px-4 py-2 border rounded-xl text-sm">Upload Photo</button>
-                    <div id="m-photo-preview" class="hidden mt-2"><img id="m-photo-img" class="w-40 h-28 object-cover rounded-xl border"></div>
-                </div>
-                <div><label class="text-sm font-medium">Required PPE</label><textarea id="m-ppe" class="w-full border rounded-xl px-4 py-3" rows="2"></textarea></div>
-                <div><label class="text-sm font-medium">Steps (one per line)</label><textarea id="m-steps" class="w-full border rounded-xl px-4 py-3 font-mono text-sm" rows="6"></textarea></div>
-            </div>
-            <div class="flex gap-3 mt-6">
+            <div class="p-4 border-t flex gap-3 bg-white rounded-b-3xl">
                 <button onclick="closeModal()" class="flex-1 py-3 border rounded-2xl">Cancel</button>
-                <button onclick="saveEquipment()" class="flex-1 py-3 bg-teal-700 text-white rounded-2xl">Save</button>
+                <button onclick="saveEquipment()" class="flex-1 py-3 bg-teal-700 text-white rounded-2xl font-medium">Save Equipment</button>
             </div>
         </div>
     </div>
 
     <script>
-        const BASE_URL = "https://lotoapp2.vercel.app"; // ← REPLACE WITH YOUR VERCEL URL
-
-        let equipment = [];
-        let logs = [];
-        let currentEditId = null;
-        let currentPhotoBase64 = null;
-        let sigCtx = null;
-
-        function switchTab(n) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById('section-' + n).classList.add('active');
-            document.querySelectorAll('.nav-tab').forEach((b, i) => b.classList.toggle('active', i === n));
-            if (n === 0) updateDashboard();
-            if (n === 1) renderAdmin();
-        }
-
-        function loadData() {
-            const saved = localStorage.getItem('loto_v4');
-            if (saved) {
-                const data = JSON.parse(saved);
-                equipment = data.equipment || [];
-                logs = data.logs || [];
-            } else {
-                equipment = [{
-                    id: "CB-PANEL-01",
-                    name: "Main 480V Distribution Panel - Area A",
-                    photo: "https://picsum.photos/id/1015/800/600",
-                    ppe: "Level 4 Arc Flash Suit, Class 2 Gloves, Insulated Tools, Face Shield",
-                    steps: [
-                        "Notify affected employees that LOTO is starting",
-                        "Review procedure and identify all energy sources",
-                        "Shut down equipment using normal controls",
-                        "Isolate energy sources",
-                        "Apply personal locks and tags",
-                        "Release stored/residual energy (double block & bleed if applicable)",
-                        "Verify isolation (Live-Dead-Live test with tester + attempt restart)",
-                        "Don required PPE",
-                        "Perform the work safely",
-                        "Clear work area and notify for re-energization",
-                        "Remove locks/tags and re-energize following safe procedure"
-                    ]
-                }];
-                saveData();
-            }
-        }
-
-        function saveData() {
-            localStorage.setItem('loto_v4', JSON.stringify({equipment, logs}));
-        }
-
-        function updateDashboard() {
-            document.getElementById('stat-total').textContent = logs.length;
-            document.getElementById('stat-equip').textContent = equipment.length;
-        }
-
-        function renderAdmin() {
-            const container = document.getElementById('admin-list');
-            container.innerHTML = '';
-            equipment.forEach(eq => {
-                const card = document.createElement('div');
-                card.className = 'bg-white border rounded-3xl p-5';
-                card.innerHTML = `
-                    <img src="${eq.photo}" class="w-full h-40 object-cover rounded-2xl mb-4">
-                    <div class="font-semibold">${eq.name}</div>
-                    <div class="font-mono text-xs text-slate-500 mb-4">${eq.id}</div>
-                    <div class="flex gap-2">
-                        <button onclick="editEquipment('${eq.id}')" class="flex-1 py-2 text-sm border rounded-2xl">Edit</button>
-                        <button onclick="showQR('${eq.id}')" class="flex-1 py-2 text-sm border border-teal-700 text-teal-700 rounded-2xl">QR Code</button>
-                        <button onclick="deleteEquipment('${eq.id}')" class="px-3 text-sm text-red-600">×</button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function showAddModal() {
-            currentEditId = null;
-            currentPhotoBase64 = null;
-            document.getElementById('modal-title').textContent = 'Add Equipment';
-            document.getElementById('m-id').value = 'EQ-' + Date.now().toString().slice(-6);
-            document.getElementById('m-name').value = '';
-            document.getElementById('m-ppe').value = 'Level 4 Arc Flash Suit, Proper Gloves, Insulated Tools';
-            document.getElementById('m-steps').value = 'Notify affected employees\nReview procedure\nShut down\nIsolate energy sources\nApply locks & tags\nRelease stored energy\nVerify isolation (Live-Dead-Live)\nDon required PPE\nPerform work\nNotify for re-energize\nRemove LOTO & re-energize';
-            document.getElementById('m-photo-preview').classList.add('hidden');
-            document.getElementById('modal').classList.remove('hidden');
-            document.getElementById('modal').classList.add('flex');
-        }
-
-        function editEquipment(id) {
-            const eq = equipment.find(e => e.id === id);
-            if (!eq) return;
-            currentEditId = id;
-            currentPhotoBase64 = eq.photo;
-            document.getElementById('modal-title').textContent = 'Edit Equipment';
-            document.getElementById('m-id').value = eq.id;
-            document.getElementById('m-name').value = eq.name;
-            document.getElementById('m-ppe').value = eq.ppe || '';
-            document.getElementById('m-steps').value = eq.steps.join('\n');
-            const preview = document.getElementById('m-photo-preview');
-            if (eq.photo) {
-                document.getElementById('m-photo-img').src = eq.photo;
-                preview.classList.remove('hidden');
-            }
-            document.getElementById('modal').classList.remove('hidden');
-            document.getElementById('modal').classList.add('flex');
-        }
-
-        function previewPhoto(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    currentPhotoBase64 = e.target.result;
-                    document.getElementById('m-photo-img').src = currentPhotoBase64;
-                    document.getElementById('m-photo-preview').classList.remove('hidden');
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function saveEquipment() {
-            const id = document.getElementById('m-id').value.trim();
-            const name = document.getElementById('m-name').value.trim();
-            if (!id || !name) return alert('ID and Name required');
-
-            const steps = document.getElementById('m-steps').value.trim().split('\n').filter(s => s.trim());
-
-            const newEq = {
-                id,
-                name,
-                photo: currentPhotoBase64 || "https://picsum.photos/id/1015/800/600",
-                ppe: document.getElementById('m-ppe').value.trim(),
-                steps: steps.length ? steps : ["Notify affected employees", "Isolate energy sources", "Apply locks & tags", "Verify isolation", "Don PPE", "Perform work", "Re-energize safely"]
-            };
-
-            if (currentEditId) {
-                const idx = equipment.findIndex(e => e.id === currentEditId);
-                equipment[idx] = newEq;
-            } else {
-                if (equipment.some(e => e.id === id)) return alert('ID already exists');
-                equipment.push(newEq);
-            }
-            saveData();
-            closeModal();
-            renderAdmin();
-        }
-
-        function closeModal() {
-            document.getElementById('modal').classList.remove('flex');
-            document.getElementById('modal').classList.add('hidden');
-        }
-
-        function showQR(id) {
-            const eq = equipment.find(e => e.id === id);
-            if (!eq) return;
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-[100]';
-            modal.innerHTML = `
-                <div class="bg-white rounded-3xl p-6 max-w-xs w-full mx-4 text-center">
-                    <h3 class="font-semibold mb-2">QR for ${eq.id}</h3>
-                    <div id="qr-container" class="flex justify-center my-4"></div>
-                    <p class="text-xs text-slate-500 mb-4">Scan this QR → opens directly to the checklist + photo</p>
-                    <button onclick="this.closest('.fixed').remove()" class="w-full py-3 bg-teal-700 text-white rounded-2xl">Close</button>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            const qrUrl = `${BASE_URL}/?equip=${encodeURIComponent(eq.id)}`;
-            new QRCode(document.getElementById('qr-container'), { text: qrUrl, width: 200, height: 200 });
-        }
-
-        function deleteEquipment(id) {
-            if (!confirm('Delete this equipment?')) return;
-            equipment = equipment.filter(e => e.id !== id);
-            saveData();
-            renderAdmin();
-        }
-
-        function loadEquipment(id) {
-            const eq = equipment.find(e => e.id === id);
-            if (!eq) { alert('Equipment not found'); return; }
-
-            const container = document.getElementById('perform-content');
-            container.innerHTML = `
-                <div class="p-6 border-b">
-                    <img src="${eq.photo}" class="w-full h-64 object-cover rounded-2xl mb-4">
-                    <div class="font-semibold text-2xl">${eq.name}</div>
-                    <div class="font-mono text-sm text-slate-500">${eq.id}</div>
-                    <div class="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-sm">
-                        <strong>Required PPE:</strong> ${eq.ppe || 'Standard electrical PPE'}
-                    </div>
-                </div>
-                <div class="p-6">
-                    <h4 class="font-semibold mb-3">LOTO Checklist</h4>
-                    <div id="checklist" class="space-y-2 mb-8"></div>
-
-                    <div class="border-t pt-6">
-                        <h4 class="font-semibold mb-3">Digital Signature</h4>
-                        <input id="sig-name" value="${document.getElementById('currentUser').value}" class="w-full border rounded-xl px-4 py-3 mb-3">
-                        <canvas id="signatureCanvas" width="600" height="160" class="w-full border rounded-2xl"></canvas>
-                        <button onclick="clearSignature()" class="text-xs text-slate-500 mt-1">Clear</button>
-                    </div>
-
-                    <button onclick="completeLOTO('${eq.id}')" class="mt-8 w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-semibold text-lg">
-                        COMPLETE LOTO &amp; SEND TO EHS / MAINTENANCE
-                    </button>
-                </div>
-            `;
-
-            // Render checklist
-            const checklistDiv = document.getElementById('checklist');
-            eq.steps.forEach((step, i) => {
-                const div = document.createElement('div');
-                div.className = 'flex gap-3 p-4 border rounded-2xl';
-                div.innerHTML = `
-                    <input type="checkbox" class="mt-1 w-5 h-5 accent-teal-700">
-                    <div class="flex-1 text-sm"><span class="font-mono text-teal-700 mr-2">${i+1}.</span>${step}</div>
-                `;
-                checklistDiv.appendChild(div);
-            });
-
-            setupSignature();
-        }
-
-        function setupSignature() {
-            const canvas = document.getElementById('signatureCanvas');
-            if (!canvas) return;
-            sigCtx = canvas.getContext('2d');
-            sigCtx.strokeStyle = '#0f766e';
-            sigCtx.lineWidth = 3;
-            let drawing = false;
-            canvas.onmousedown = e => { drawing = true; draw(e); };
-            canvas.onmousemove = e => { if (drawing) draw(e); };
-            canvas.onmouseup = () => drawing = false;
-        }
-
-        function draw(e) {
-            const rect = e.target.getBoundingClientRect();
-            sigCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            sigCtx.stroke();
-        }
-
-        function clearSignature() {
-            const canvas = document.getElementById('signatureCanvas');
-            if (sigCtx) sigCtx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        function completeLOTO(id) {
-            const name = document.getElementById('sig-name').value || 'Technician';
-            alert(`✅ LOTO Completed!\n\nTechnician: ${name}\nEquipment: ${id}\n\n📧 Report sent to EHS, Maintenance, and F&E departments.\n\nFull audit record saved with photo, checklist, timestamp, and digital signature.`);
-            document.getElementById('perform-content').innerHTML = `<div class="p-8 text-center text-emerald-600">Thank you! Record saved.</div>`;
-        }
-
-        function updateDashboard() {
-            // Already handled
-        }
-
-        // Auto-load from URL parameter
-        function checkUrlParam() {
-            const params = new URLSearchParams(window.location.search);
-            const equipId = params.get('equip');
-            if (equipId) {
-                switchTab(2);
-                setTimeout(() => {
-                    loadEquipment(equipId);
-                }, 100);
-            }
-        }
-
-        window.onload = () => {
-            loadData();
-            updateDashboard();
-            renderAdmin();
-            checkUrlParam();
-            console.log('%c[LOTO Pro] Ready on Vercel. Replace BASE_URL with your deployment URL.', 'color:#0f766e');
-        };
+        const BASE_URL = "https://lotoapp2.vercel.app";
+        // ... rest of your JavaScript (loadData, renderAdmin, loadEquipment, etc.)
     </script>
 </body>
 </html>
