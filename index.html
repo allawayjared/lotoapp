@@ -8,74 +8,119 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body { font-family: 'Inter', system_ui, sans-serif; }
-        .heading { font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
+        body { font-family: system-ui, sans-serif; }
         .nav-tab.active { background-color: #0f766e; color: white; }
         .section { display: none; }
         .section.active { display: block; }
-        canvas { border: 2px solid #e5e7eb; border-radius: 12px; background: white; touch-action: none; }
-        .modal-body { max-height: 65vh; overflow-y: auto; }
+        .modal-body { max-height: 60vh; overflow-y: auto; }
     </style>
 </head>
 <body class="bg-slate-50">
-    <header class="bg-white border-b sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-x-3">
-                <div class="w-10 h-10 bg-teal-700 rounded-xl flex items-center justify-center text-white"><i class="fa-solid fa-lock"></i></div>
-                <h1 class="text-2xl font-semibold heading">LOTO Pro</h1>
-            </div>
-            <input id="currentUser" value="Alex Rivera" class="bg-slate-100 px-4 py-2 rounded-full text-sm w-40">
-        </div>
+    <header class="bg-white border-b p-4">
+        <h1 class="text-2xl font-bold">LOTO Pro</h1>
     </header>
 
-    <nav class="max-w-7xl mx-auto px-6 pt-6">
-        <div class="flex gap-x-1 bg-white p-1 rounded-2xl w-fit border">
-            <button onclick="switchTab(0)" class="nav-tab active px-6 py-3 rounded-xl text-sm font-medium">Dashboard</button>
-            <button onclick="switchTab(1)" class="nav-tab px-6 py-3 rounded-xl text-sm font-medium">Admin</button>
-            <button onclick="switchTab(2)" class="nav-tab px-6 py-3 rounded-xl text-sm font-medium">Perform LOTO</button>
-        </div>
+    <nav class="p-4 border-b flex gap-2">
+        <button onclick="switchTab(0)" class="nav-tab active px-5 py-2 rounded">Dashboard</button>
+        <button onclick="switchTab(1)" class="nav-tab px-5 py-2 rounded">Admin</button>
+        <button onclick="switchTab(2)" class="nav-tab px-5 py-2 rounded">Perform LOTO</button>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-6 py-8">
-        <div id="section-0" class="section active">
-            <h2 class="text-3xl font-semibold heading mb-6">Dashboard</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-3xl border text-center">
-                    <p class="text-sm text-slate-500">Equipment</p>
-                    <p id="stat-equip" class="text-4xl font-bold text-teal-700">1</p>
-                </div>
-            </div>
-        </div>
-
+    <div class="p-4">
+        <div id="section-0" class="section active">Dashboard ready</div>
         <div id="section-1" class="section">
-            <div class="flex justify-between mb-6">
-                <h2 class="text-3xl font-semibold heading">Admin</h2>
-                <button onclick="showAddModal()" class="bg-teal-700 text-white px-5 py-2.5 rounded-2xl text-sm font-medium">+ Add Equipment</button>
-            </div>
-            <div id="admin-list" class="grid grid-cols-1 gap-4"></div>
+            <button onclick="showAddModal()" class="bg-teal-700 text-white px-6 py-3 rounded">+ Add Equipment</button>
+            <div id="admin-list" class="mt-4"></div>
         </div>
-
         <div id="section-2" class="section">
-            <div id="perform-content" class="max-w-4xl mx-auto"></div>
+            <div id="perform-area"></div>
         </div>
     </div>
 
     <!-- Modal -->
-    <div id="modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4">
-        <div class="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] flex flex-col">
-            <div class="p-6 border-b">
-                <h3 id="modal-title" class="text-xl font-semibold">Add Equipment</h3>
+    <div id="modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl w-full max-w-md flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b">
+                <h3 id="modal-title" class="font-bold text-lg">Add Equipment</h3>
             </div>
-            <div class="modal-body p-6 overflow-y-auto flex-1 space-y-4">
-                <div><label class="text-sm font-medium block mb-1">ID</label><input id="m-id" class="w-full border rounded-xl px-4 py-3"></div>
-                <div><label class="text-sm font-medium block mb-1">Name</label><input id="m-name" class="w-full border rounded-xl px-4 py-3"></div>
-                <div>
-                    <label class="text-sm font-medium block mb-1">Photo</label>
-                    <input type="file" id="m-photo" accept="image/*" class="hidden" onchange="previewPhoto(this)">
-                    <button onclick="document.getElementById('m-photo').click()" class="px-4 py-2 border rounded-xl text-sm">Choose Photo</button>
-                    <div id="m-photo-preview" class="hidden mt-3"><img id="m-photo-img" class="w-full rounded-xl border"></div>
-                </div>
-                <div><label class="text-sm font-medium block mb-1">PPE</label><textarea id="m-ppe" class="w-full border rounded-xl px-4 py-3" rows="2"></textarea></div>
-                <div><label class="text-sm font-medium block mb-1">Steps (one per line)</label><textarea id="m-steps" class="w-full border rounded-xl px-4 py-3 font-mono text-sm" rows="6"></textarea></div>
+            <div class="modal-body p-5 space-y-4 overflow-auto">
+                <input id="m-id" placeholder="ID" class="w-full border p-3 rounded">
+                <input id="m-name" placeholder="Name" class="w-full border p-3 rounded">
+                <input type="file" id="m-photo" accept="image/*" onchange="preview(this)">
+                <div id="preview" class="hidden"><img id="previmg" class="w-full rounded"></div>
+                <textarea id="m-ppe" placeholder="PPE requirements" class="w-full border p-3 rounded" rows="2"></textarea>
+                <textarea id="m-steps" placeholder="Steps - one per line" class="w-full border p-3 rounded" rows="6"></textarea>
             </div>
             <div class="p-4 border-t flex gap-3">
+                <button onclick="closeModal()" class="flex-1 py-3 border rounded-2xl">Cancel</button>
+                <button onclick="saveItem()" class="flex-1 py-3 bg-teal-700 text-white rounded-2xl">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = "https://lotoapp2.vercel.app";
+        let equipment = [];
+
+        function switchTab(n) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('section-' + n).classList.remove('hidden');
+            if (n === 1) renderAdmin();
+        }
+
+        function loadData() {
+            equipment = [{id:"CB-PANEL-01", name:"Main Panel", photo:"https://picsum.photos/id/1015/800/600", ppe:"Level 4", steps:["Notify","Isolate","Verify","PPE","Work","Re-energize"]}];
+        }
+
+        function renderAdmin() {
+            const div = document.getElementById('admin-list');
+            div.innerHTML = equipment.map(e => `
+                <div class="border p-4 rounded mb-3">
+                    <img src="${e.photo}" class="w-full h-32 object-cover rounded">
+                    <div class="font-bold">${e.name}</div>
+                    <button onclick="genQR('${e.id}')" class="text-teal-600">QR Code</button>
+                </div>
+            `).join('');
+        }
+
+        function showAddModal() {
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function preview(input) {
+            if (input.files[0]) {
+                const r = new FileReader();
+                r.onload = e => document.getElementById('previmg').src = e.target.result;
+                r.readAsDataURL(input.files[0]);
+                document.getElementById('preview').classList.remove('hidden');
+            }
+        }
+
+        function saveItem() {
+            alert("Saved (demo version)");
+            closeModal();
+            renderAdmin();
+        }
+
+        function genQR(id) {
+            const url = `${BASE_URL}/?equip=${id}`;
+            alert("QR would open: " + url + "\n\nScan this in real use.");
+            // Full QR code window can be added if needed
+        }
+
+        window.onload = () => {
+            loadData();
+            renderAdmin();
+            const id = new URLSearchParams(location.search).get('equip');
+            if (id) {
+                switchTab(2);
+                document.getElementById('perform-area').innerHTML = `<p>Checklist for ${id} loaded.</p>`;
+            }
+        };
+    </script>
+</body>
+</html>
