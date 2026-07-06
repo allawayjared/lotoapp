@@ -84,6 +84,31 @@
         function completeLOTO() {
             alert("Signed! Report sent to EHS.");
         }
+                function checkUrlParam() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('equip');
+            if (id) {
+                switchTab(2);
+                // Auto-load the checklist
+                const content = document.getElementById('content');
+                content.innerHTML = `
+                    <img src="https://picsum.photos/id/1015/800/600" class="w-full rounded mb-4">
+                    <h2 class="text-2xl">Checklist for ${id}</h2>
+                    <ul class="list-disc pl-6 mt-4 space-y-2">
+                        <li>Notify affected employees</li>
+                        <li>Isolate energy</li>
+                        <li>Live-Dead-Live test</li>
+                        <li>Don PPE</li>
+                        <li>Perform work</li>
+                        <li>Re-energize</li>
+                    </ul>
+                    <button onclick="completeLOTO()" class="mt-8 bg-emerald-600 text-white px-8 py-4 rounded w-full">Sign & Complete</button>
+                `;
+            }
+        }
+
+        // Make sure onload calls it
+        window.onload = checkUrlParam;
     </script>
 </body>
 </html>
