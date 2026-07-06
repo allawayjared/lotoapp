@@ -70,13 +70,20 @@
         }
 
         function saveNewEquipment() {
-            const id = document.getElementById('mid').value;
-            const name = document.getElementById('mname').value;
-            if (!id || !name) return alert("ID and Name required");
-            equipment.push({id, name, photo: currentPhoto || "https://picsum.photos/id/1015/800/600"});
-            document.querySelector('.fixed').remove();
-            renderList();
-        }
+    const id = document.getElementById('mid').value.trim();
+    const name = document.getElementById('mname').value.trim();
+    if (!id || !name) return alert("ID and Name required");
+    
+    equipment.push({
+        id, 
+        name, 
+        photo: currentPhoto || "https://picsum.photos/id/1015/800/600"
+    });
+    
+    document.querySelector('.fixed').remove();
+    renderList();   // This was missing
+    alert("Equipment saved with photo!");
+}
 
         function renderList() {
             const list = document.getElementById('list');
