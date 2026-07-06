@@ -35,13 +35,31 @@
             if (n === 2) content.innerHTML = `<input id="idinput" placeholder="Equipment ID" class="border p-3 w-full rounded mb-4"><button onclick="loadChecklist()" class="bg-emerald-600 text-white px-8 py-3 rounded">Load Checklist</button>`;
         }
 
-        function addEquipment() {
-            const id = prompt("Equipment ID", "CB-PANEL-01");
-            const name = prompt("Name", "Main Panel");
-            const photo = prompt("Photo URL (public link)", "https://picsum.photos/id/1015/800/600");
-            equipment.push({id, name, photo: photo || "https://picsum.photos/id/1015/800/600"});
-            renderList();
+      function addEquipment() {
+    const id = prompt("Equipment ID", "CB-PANEL-01");
+    const name = prompt("Name", "Main Panel");
+    const photoInput = document.createElement('input');
+    photoInput.type = 'file';
+    photoInput.accept = 'image/*';
+    photoInput.onchange = e => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = ev => {
+                equipment.push({
+                    id, 
+                    name, 
+                    photo: ev.target.result, 
+                    ppe: "Level 4 Arc Flash Suit", 
+                    steps: ["Notify affected employees", "Isolate energy", "Live-Dead-Live test", "Don PPE", "Perform work", "Re-energize"]
+                });
+                renderList();
+            };
+            reader.readAsDataURL(file);
         }
+    };
+    photoInput.click();
+}
 
         function renderList() {
             const list = document.getElementById('list');
