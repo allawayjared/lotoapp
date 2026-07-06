@@ -42,21 +42,26 @@
         }
 
         function showAddModal() {
-            const modal = document.createElement('div');
-            modal.style = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100';
-            modal.innerHTML = `
-                <div style="background:white;padding:20px;border-radius:12px;width:90%;max-width:400px">
-                    <h3>Add Equipment</h3>
-                    <input id="mid" placeholder="ID" style="width:100%;padding:10px;margin:10px 0;border:1px solid #ccc">
-                    <input id="mname" placeholder="Name" style="width:100%;padding:10px;margin:10px 0;border:1px solid #ccc">
-                    <input type="file" id="mphoto" accept="image/*" onchange="previewFile(this)">
-                    <div id="mprev" style="margin:10px 0"></div>
-                    <button onclick="saveNewEquipment()" style="background:#0f766e;color:white;padding:10px 20px;border:none;border-radius:8px">Save</button>
-                    <button onclick="this.closest('.fixed').remove()" style="margin-left:10px">Cancel</button>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        }
+    const modal = document.createElement('div');
+    modal.style = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100';
+    modal.innerHTML = `
+        <div style="background:white;padding:20px;border-radius:12px;width:90%;max-width:400px">
+            <h3>Add Equipment</h3>
+            <input id="mid" placeholder="ID" style="width:100%;padding:10px;margin:10px 0;border:1px solid #ccc">
+            <input id="mname" placeholder="Name" style="width:100%;padding:10px;margin:10px 0;border:1px solid #ccc">
+            <input type="file" id="mphoto" accept="image/*">
+            <div id="mprev" style="margin:10px 0"></div>
+            <button id="saveBtn" style="background:#0f766e;color:white;padding:10px 20px;border:none;border-radius:8px">Save</button>
+            <button id="cancelBtn" style="margin-left:10px">Cancel</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    // Event listeners
+    modal.querySelector('#saveBtn').onclick = saveNewEquipment;
+    modal.querySelector('#cancelBtn').onclick = () => modal.remove();
+    modal.querySelector('#mphoto').onchange = previewFile;
+}
 
         function previewFile(input) {
             if (input.files[0]) {
