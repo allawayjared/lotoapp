@@ -1,11 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOTO Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: system-ui, sans-serif; }
+        .nav-tab.active { background-color: #0f766e; color: white; }
+        .section { display: none; }
+        .section.active { display: block; }
+    </style>
 </head>
-<body class="p-8">
-    <h1 class="text-4xl font-bold mb-8">LOTO Test</h1>
-    <button onclick="alert('Admin works!')" class="bg-blue-600 text-white px-8 py-4 rounded-xl text-lg mr-4">Admin Button</button>
-    <button onclick="alert('Perform LOTO works!')" class="bg-green-600 text-white px-8 py-4 rounded-xl text-lg">Perform LOTO Button</button>
-</body>
-</html>
+<body class="bg-slate-50">
+    <header class="bg-white border-b p-4">
+        <h1 class="text-3xl font-bold">LOTO Pro</h1>
+    </header>
+
+    <nav class="p-4 border-b flex gap-2 bg-white">
+        <button onclick="switchTab(0)" class="nav-tab active px-6 py-3 rounded-xl">Dashboard</button>
+        <button onclick="switchTab(1)" class="nav-tab px-6 py-3 rounded-xl">Admin</button>
+        <button onclick="switchTab(2)" class="nav-tab px-6 py-3 rounded-xl">Perform LOTO</button>
+    </nav>
+
+    <div class="p-6 max-w-4xl mx-auto">
+        <div id="section-0" class="section active">
+            <h2 class="text-2xl font-bold mb-4">Dashboard</h2>
+            <p>Ready to use</p>
+        </div>
+
+        <div id="section-1" class="section">
+            <button onclick="showAddModal()" class="bg-teal-700 text-white px-6 py-3 rounded-xl mb-6">+ Add Equipment</button>
+            <div id="admin-list"></div>
+        </div>
+
+        <div id="section-2" class="section">
+            <div id="perform-content"></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md">
+            <div class="p-6 border-b">
+                <h3 id="modal-title">Add Equipment</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <input id="m-id" class="w-full border p-3 rounded" placeholder="ID">
+                <input id="m-name" class="w-full border p-3 rounded" placeholder="Name">
+                <input type="file" id="m-photo" accept="image/*" onchange="previewPhoto(this)">
+                <div id="photo-preview" class="hidden"><img id="preview-img" class="w-full rounded"></div>
+                <textarea id="m-ppe" class="w-full border p-3 rounded" rows="2" placeholder="PPE"></textarea>
+                <textarea id="m-steps" class="w-full border p-3 rounded" rows="5" placeholder="Steps one per line"></textarea>
+            </div>
+            <div class="p-4 border-t flex gap-3">
+                <button onclick="closeModal()" class="flex-1 py-3 border rounded-2xl">Cancel</button>
+                <button onclick="saveEquipment()" class="flex-1 py-3 bg-teal-700 text-white rounded-2xl">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = "https://lotoapp2.vercel.app";
+        let equipment = [];
+
+        function switchTab(n) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('section-' + n).classList.remove('hidden');
+            if (n === 1) renderAdmin();
+        }
+
+        function loadData() {
+            equipment = [{
+                id: "CB-PANEL-01",
+                name: "Main 480V Panel",
+                photo: "https://picsum.photos/id/1015/800/600",
+                ppe: "Level 4 Arc Flash Suit",
+                steps: ["Notify affected", "Isolate energy", "Live-Dead-Live test", "Don PPE", "Perform work", "Re-energize"]
+            }];
+        }
+
+        function renderAdmin() {
+            const container = document.getElementById('admin-list');
+            container.innerHTML = equipment.map(eq => `
+                <div class="border p-4 rounded mb-4">
+                    <img src="${eq.photo}" class="w-full h-48 object-cover rounded mb-3">
+                    <div class="font-bold">${eq.name}</div>
+                    <button onclick="showQR('${eq.id}')" class="text-teal-600 mt-2">Generate QR</button>
+                </div>
