@@ -47,10 +47,22 @@
             `;
         }
 
-        function genQR(id) {
-            const url = `${BASE_URL}/?equip=${id}`;
-            alert("QR Link:\n" + url + "\n\nCopy and test in new tab or scan with phone.");
-        }
+       function genQR(id) {
+    const url = `${BASE_URL}/?equip=${id}`;
+    const win = window.open("", "_blank");
+    win.document.write(`
+        <div style="padding:40px;text-align:center;font-family:sans-serif">
+            <h2>QR Code for ${id}</h2>
+            <div id="qr" style="margin:30px auto"></div>
+            <p>Scan this with your phone</p>
+        </div>
+    `);
+    new QRCode(win.document.getElementById("qr"), {
+        text: url,
+        width: 256,
+        height: 256
+    });
+}
 
         function loadChecklist() {
             const id = document.getElementById('idinput').value || "CB-PANEL-01";
