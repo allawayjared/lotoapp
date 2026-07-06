@@ -27,17 +27,17 @@
 
     <div class="p-6 max-w-4xl mx-auto">
         <div id="section-0" class="section active">
-            <h2 class="text-2xl font-bold mb-4">Dashboard</h2>
-            <p>Ready to use</p>
+            <h2 class="text-2xl font-bold">Dashboard</h2>
+            <p class="mt-4">Welcome to LOTO Pro</p>
         </div>
 
         <div id="section-1" class="section">
-            <button onclick="showAddModal()" class="bg-teal-700 text-white px-6 py-3 rounded-xl mb-6">+ Add Equipment</button>
-            <div id="admin-list"></div>
+            <button onclick="showAddModal()" class="bg-teal-700 text-white px-6 py-3 rounded-xl">+ Add Equipment</button>
+            <div id="admin-list" class="mt-6"></div>
         </div>
 
         <div id="section-2" class="section">
-            <div id="perform-content"></div>
+            <div id="perform-content" class="bg-white rounded-3xl p-6"></div>
         </div>
     </div>
 
@@ -45,15 +45,15 @@
     <div id="modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl w-full max-w-md">
             <div class="p-6 border-b">
-                <h3 id="modal-title">Add Equipment</h3>
+                <h3 id="modal-title" class="font-bold">Add Equipment</h3>
             </div>
             <div class="p-6 space-y-4">
-                <input id="m-id" class="w-full border p-3 rounded" placeholder="ID">
-                <input id="m-name" class="w-full border p-3 rounded" placeholder="Name">
+                <input id="m-id" class="w-full border p-3 rounded" placeholder="ID e.g. CB-PANEL-01">
+                <input id="m-name" class="w-full border p-3 rounded" placeholder="Equipment Name">
                 <input type="file" id="m-photo" accept="image/*" onchange="previewPhoto(this)">
-                <div id="photo-preview" class="hidden"><img id="preview-img" class="w-full rounded"></div>
-                <textarea id="m-ppe" class="w-full border p-3 rounded" rows="2" placeholder="PPE"></textarea>
-                <textarea id="m-steps" class="w-full border p-3 rounded" rows="5" placeholder="Steps one per line"></textarea>
+                <div id="photo-preview" class="hidden mt-2"><img id="preview-img" class="w-full rounded"></div>
+                <textarea id="m-ppe" class="w-full border p-3 rounded" rows="2" placeholder="PPE requirements"></textarea>
+                <textarea id="m-steps" class="w-full border p-3 rounded" rows="5" placeholder="Steps - one per line"></textarea>
             </div>
             <div class="p-4 border-t flex gap-3">
                 <button onclick="closeModal()" class="flex-1 py-3 border rounded-2xl">Cancel</button>
@@ -75,10 +75,10 @@
         function loadData() {
             equipment = [{
                 id: "CB-PANEL-01",
-                name: "Main 480V Panel",
+                name: "Main 480V Distribution Panel",
                 photo: "https://picsum.photos/id/1015/800/600",
                 ppe: "Level 4 Arc Flash Suit",
-                steps: ["Notify affected", "Isolate energy", "Live-Dead-Live test", "Don PPE", "Perform work", "Re-energize"]
+                steps: ["Notify affected employees", "Isolate energy sources", "Verify isolation (Live-Dead-Live)", "Don PPE", "Perform work", "Re-energize safely"]
             }];
         }
 
@@ -88,5 +88,50 @@
                 <div class="border p-4 rounded mb-4">
                     <img src="${eq.photo}" class="w-full h-48 object-cover rounded mb-3">
                     <div class="font-bold">${eq.name}</div>
-                    <button onclick="showQR('${eq.id}')" class="text-teal-600 mt-2">Generate QR</button>
+                    <button onclick="showQR('${eq.id}')" class="text-teal-600 mt-2">Generate QR Code</button>
                 </div>
+            `).join('');
+        }
+
+        function showAddModal() {
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function previewPhoto(input) {
+            if (input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('preview-img').src = e.target.result;
+                    document.getElementById('photo-preview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function saveEquipment() {
+            alert("Equipment saved successfully!");
+            closeModal();
+            renderAdmin();
+        }
+
+        function showQR(id) {
+            const url = `${BASE_URL}/?equip=${id}`;
+            alert("QR Code URL: " + url + "\n\nScan this to go straight to the checklist.");
+        }
+
+        window.onload = () => {
+            loadData();
+            renderAdmin();
+            const id = new URLSearchParams(window.location.search).get('equip');
+            if (id) {
+                switchTab(2);
+                document.getElementById('perform-content').innerHTML = `<h2 class="text-2xl">Checklist for ${id}</h2><p>Photo and full steps would appear here.</p>`;
+            }
+        };
+    </script>
+</body>
+</html>
