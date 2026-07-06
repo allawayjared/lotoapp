@@ -20,23 +20,21 @@
 
         function switchTab(n) {
             const content = document.getElementById('content');
-            if (n === 0) {
-                content.innerHTML = '<h2 class="text-2xl">Dashboard</h2><p>Welcome to LOTO Pro</p>';
-            }
+            if (n === 0) content.innerHTML = '<h2 class="text-2xl">Dashboard</h2><p>Welcome!</p>';
             if (n === 1) {
                 content.innerHTML = `<button onclick="addEquipment()" class="bg-teal-700 text-white px-6 py-3 rounded">+ Add Equipment</button><div id="list" class="mt-6"></div>`;
                 renderList();
             }
             if (n === 2) {
                 content.innerHTML = `
-                    <input id="idinput" placeholder="Equipment ID (or scan QR)" class="border p-3 w-full rounded mb-4">
+                    <input id="idinput" placeholder="Equipment ID" class="border p-3 w-full rounded mb-4">
                     <button onclick="loadChecklist()" class="bg-emerald-600 text-white px-8 py-3 rounded">Load Checklist</button>
                 `;
             }
         }
 
         function addEquipment() {
-            alert("Add equipment form would open here (photo, steps, PPE).");
+            alert("Add form would open here.");
             renderList();
         }
 
@@ -44,13 +42,14 @@
             document.getElementById('list').innerHTML = `
                 <div class="border p-4 rounded">
                     Main Panel (CB-PANEL-01)
-                    <button onclick="genQR('CB-PANEL-01')" class="ml-4 text-teal-600">QR</button>
+                    <button onclick="genQR('CB-PANEL-01')" class="ml-4 text-teal-600">Generate QR</button>
                 </div>
             `;
         }
 
         function genQR(id) {
-            alert("QR URL: " + BASE_URL + "/?equip=" + id + "\n\nScan to go straight to checklist.");
+            const url = `${BASE_URL}/?equip=${id}`;
+            alert("QR Link:\n" + url + "\n\nCopy and test in new tab or scan with phone.");
         }
 
         function loadChecklist() {
@@ -60,18 +59,18 @@
                 <h2 class="text-2xl">Checklist for ${id}</h2>
                 <ul class="list-disc pl-6 mt-4 space-y-2">
                     <li>Notify affected employees</li>
-                    <li>Isolate energy sources</li>
+                    <li>Isolate energy</li>
                     <li>Live-Dead-Live test</li>
-                    <li>Don PPE (Level 4)</li>
+                    <li>Don PPE</li>
                     <li>Perform work</li>
-                    <li>Re-energize safely</li>
+                    <li>Re-energize</li>
                 </ul>
                 <button onclick="completeLOTO()" class="mt-8 bg-emerald-600 text-white px-8 py-4 rounded w-full">Sign & Complete</button>
             `;
         }
 
         function completeLOTO() {
-            alert("Digital signature captured!\nReport sent to EHS and Maintenance.");
+            alert("Signed! Report sent to EHS.");
         }
     </script>
 </body>
