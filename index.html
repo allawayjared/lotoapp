@@ -43,38 +43,40 @@
 
         function showAddModal() {
     const modal = document.createElement('div');
-    modal.style = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100';
+    modal.className = 'fixed inset-0 bg-black/70 flex items-center justify-center z-50';
     modal.innerHTML = `
-        <div style="background:white;padding:20px;border-radius:12px;width:90%;max-width:400px">
-            <h3>Add Equipment</h3>
-            <input id="mid" placeholder="ID" style="width:100%;padding:10px;margin:10px 0;border:1px solid #ccc">
-            <input id="mname" placeholder="Name" style="width:100%;padding:10px;margin:10px 0;border:1px solid #ccc">
-            <input type="file" id="mphoto" accept="image/*">
-            <div id="mprev" style="margin:10px 0"></div>
-            <button id="saveBtn" style="background:#0f766e;color:white;padding:10px 20px;border:none;border-radius:8px">Save</button>
-            <button id="cancelBtn" style="margin-left:10px">Cancel</button>
+        <div class="bg-white p-6 rounded-3xl w-full max-w-md">
+            <h3 class="text-lg font-bold mb-4">Add Equipment</h3>
+            <input id="mid" placeholder="ID" class="w-full border p-3 rounded mb-3">
+            <input id="mname" placeholder="Name" class="w-full border p-3 rounded mb-3">
+            <input type="file" id="mphoto" accept="image/*" class="mb-3">
+            <div id="mprev" class="mb-4"></div>
+            <div class="flex gap-3">
+                <button id="cancelBtn" class="flex-1 py-3 border rounded-2xl">Cancel</button>
+                <button id="saveBtn" class="flex-1 py-3 bg-teal-700 text-white rounded-2xl">Save</button>
+            </div>
         </div>
     `;
     document.body.appendChild(modal);
 
-    // Event listeners
     modal.querySelector('#saveBtn').onclick = saveNewEquipment;
     modal.querySelector('#cancelBtn').onclick = () => modal.remove();
     modal.querySelector('#mphoto').onchange = previewFile;
 }
 
-        function previewFile(input) {
-            if (input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    currentPhoto = e.target.result;
-                    document.getElementById('mprev').innerHTML = `<img src="${currentPhoto}" style="max-height:150px">`;
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+function previewFile(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = ev => {
+            currentPhoto = ev.target.result;
+            document.getElementById('mprev').innerHTML = `<img src="${currentPhoto}" class="max-h-48 rounded">`;
+        };
+        reader.readAsDataURL(file);
+    }
+}
 
-        function saveNewEquipment() {
+function saveNewEquipment() {
     console.log("Save clicked!");
     const id = document.getElementById('mid').value.trim();
     const name = document.getElementById('mname').value.trim();
@@ -88,7 +90,7 @@
     
     document.querySelector('.fixed').remove();
     renderList();
-    alert("Equipment saved!");
+    alert("Equipment saved with photo!");
 }
 
         function renderList() {
